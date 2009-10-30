@@ -1,0 +1,10 @@
+<?php
+
+$config = array(
+	'url' => 'http://your.server.tld/dir/index.php',
+	'title' => 'Saved Searches',
+	'feeds' => array(
+		'name' => 'feed url',
+		'another name' => 'another feed',
+	),
+);
