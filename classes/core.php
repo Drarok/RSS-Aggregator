@@ -53,6 +53,11 @@ class Core {
 			: $default;
 	}
 
+	public function set_config($key, $value) {
+		list($file, $key) = explode('.', $key, 2);
+		self::$config[$file][$key] = $value;
+	}
+
 	public static function log($level, $message) {
 		// Check it's a valid level.
 		if (! array_key_exists($level, self::$levels))
