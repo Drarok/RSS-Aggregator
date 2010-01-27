@@ -33,21 +33,17 @@ class Aggregate {
 	}
 
 	protected function add_child_nodes($parent, $result) {
-		static $child_stmt;
-		if (! (bool) $child_stmt) {
-			$child_stmt = new SQLStatement(
-				$this->db,
-				'SELECT * FROM "entries" '
-				.'WHERE "parent_id" = :parent_id'
-			);
-		}
 
 		Core::set_config('config.debug_mode', TRUE);
 		Core::log('debug', 'Looking for child objects for %d', $result->id);
 
 		$child_stmt->parent_id = $result->id;
 
-		$child_query = $child_stmt->execute();
+		$child_query = new SQLResult(
+			$this->db,
+			'SELECT * FROM "entries" '
+			.sprintf('WHERE "parent_id" = %d', $result->id)
+		);
 
 		while ($child_row = $child_query->fetch()) {
 			$node = $parent->addChild($child_row->name, $child_row->value);
@@ -72,8 +68,6 @@ class Aggregate {
 		);
 
 		while ($root_row = $roots_result->fetch()) {
-			var_dump($root_row);
-			continue;
 			$entry = $xml->addChild('entry');
 			$entry->addChild('title', $root_row->name);
 			$this->add_child_nodes($entry, $root_row);
