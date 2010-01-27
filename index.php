@@ -4,6 +4,8 @@ define('ENABLE_CACHE', FALSE);
 define('DEBUG', FALSE);
 
 set_time_limit(0);
+error_reporting(E_ALL & E_STRICT);
+ini_set('display_errors', 'on');
 
 function log_msg() {
 	$args = func_get_args();
@@ -57,6 +59,7 @@ foreach ($feeds as $id => $feed) {
 	foreach ($xml->entry as $entry) {
 		$node = $aggregate->addChild('entry');
 		foreach ($entry as $key => $value) {
+			log_msg('Appending key %s, data %s', (string) $key, (string) $value);
 			$subnode = $node->addChild((string) $key, str_replace('&', '&#38;', (string) $value));
 			foreach ($value->attributes() as $attrkey => $attrval) {
 				$subnode->addAttribute($attrkey, (string) $attrval);
