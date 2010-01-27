@@ -1,5 +1,13 @@
 <?php
 
+set_time_limit(0);
+error_reporting(E_ALL | E_STRICT);
+ini_set('display_errors', 'on');
+
+define('EXT', '.php');
+define('DS', DIRECTORY_SEPARATOR);
+define('APPPATH', realpath('.').DS);
+
 class Core {
 	protected static $levels = array(
 		'error' => 1,
@@ -9,6 +17,17 @@ class Core {
 	);
 
 	protected static $config = array();
+
+	public static function autoload($class_name) {
+		Core::log('debug', 'Autoloading %s', $class_name);
+
+		$class_path = APPPATH.'classes/'.strtolower($class_name).EXT;
+		if (file_exists($class_path)) {
+			include_once($class_path);
+		} else {
+			echo 'Failed to load ', $class_name, "\n";
+		}
+	}
 
 	public static function config($key, $default = FALSE) {
 		// Break up the key passed in.
@@ -43,7 +62,7 @@ class Core {
 		$level_num = self::$levels[$level];
 
 		// Don't log if the level is above the configured one.
-		if ($level_num > config::item('config.log_level', 1))
+		if ($level_num > Core::config('config.log_level', 1))
 			return;
 
 		// Do printf-style formatting if required.
@@ -61,7 +80,7 @@ class Core {
 		)."\n";
 
 		// Output if we're debugging.
-		if (config::item('config.debug_mode'))
+		if (Core::config('config.debug_mode'))
 			echo $message;
 
 		// Finally write it to the log.
@@ -72,3 +91,5 @@ class Core {
 		fwrite($log_file, $message);
 	}
 }
+
+spl_autoload_register('Core::autoload');
