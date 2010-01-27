@@ -1,38 +1,22 @@
 <?php
 
-define('ENABLE_CACHE', FALSE);
-define('DEBUG', FALSE);
 
 set_time_limit(0);
 error_reporting(E_ALL & E_STRICT);
 ini_set('display_errors', 'on');
 
-function log_msg() {
-	$args = func_get_args();
-	$msg = array_shift($args);
+require_once('core.php');
+require_once('classes/config.php');
+$feeds = config::item('config.feeds', array());
 
-	if ((bool) $args) {
-		$msg = vsprintf($msg, $args);
-	}
-
-	static $log_file;
-	if (! $log_file) {
-		$log_file = fopen('log.txt', 'a');
-	}
-
-	$msg = sprintf('[%s] %s', date('Y-m-d H:i:s'), $msg).PHP_EOL;
-
-	fwrite($log_file, $msg);
-}
-
-require_once('config.php');
-$feeds = $config['feeds'];
+define('ENABLE_CACHE', config::item('config.enable_cache'));
+define('DEBUG', config::item('config.debug_mode'));
 
 log_msg('Request from %s to fetch %d feeds', $_SERVER['REMOTE_ADDR'], count($feeds));
 
 $aggregate = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
-$aggregate->addChild('id', $config['url']);
-$aggregate->addChild('title', $config['title']);
+$aggregate->addChild('id', config::item('config.url'));
+$aggregate->addChild('title', config::item('config.title'));
 
 foreach ($feeds as $id => $feed) {
 	log_msg('Fetching %s', $id);
