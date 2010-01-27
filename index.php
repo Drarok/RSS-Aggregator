@@ -5,17 +5,19 @@ set_time_limit(0);
 error_reporting(E_ALL & E_STRICT);
 ini_set('display_errors', 'on');
 
-require_once('core.php');
+require_once('classes/core.php');
 require_once('classes/config.php');
-$feeds = config::item('config.feeds', array());
+require_once('classes/rss.php');
 
-define('ENABLE_CACHE', config::item('config.enable_cache'));
+$feeds = Core::config('config.feeds', array());
+
+define('ENABLE_CACHE', Core::config('config.enable_cache'));
 
 Core::log('debug', 'Request from %s to fetch %d feeds', $_SERVER['REMOTE_ADDR'], count($feeds));
 
 $aggregate = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
-$aggregate->addChild('id', config::item('config.url'));
-$aggregate->addChild('title', config::item('config.title'));
+$aggregate->addChild('id', Core::config('config.url'));
+$aggregate->addChild('title', Core::config('config.title'));
 
 foreach ($feeds as $id => $feed) {
 	Core::log('info', 'Fetching %s', $id);
@@ -42,7 +44,7 @@ foreach ($feeds as $id => $feed) {
 	foreach ($xml->entry as $entry) {
 		$node = $aggregate->addChild('entry');
 		foreach ($entry as $key => $value) {
-			Core::log('debug', 'Appending key %s, data %s', (string) $key, (string) $value);
+//			Core::log('debug', 'Appending key %s, data %s', (string) $key, (string) $value);
 			$subnode = $node->addChild((string) $key, str_replace('&', '&#38;', (string) $value));
 			foreach ($value->attributes() as $attrkey => $attrval) {
 				$subnode->addAttribute($attrkey, (string) $attrval);
@@ -51,11 +53,11 @@ foreach ($feeds as $id => $feed) {
 	}
 }
 
-if (config::item('config.debug_mode'))
+if (Core::config('config.debug_mode')) {
 	header('Content-Type: text/plain');
-else
+} else {
 	header('Content-Type: application/atom+xml');
-
-echo $aggregate->asXML();
+	echo $aggregate->asXML();
+}
 
 Core::log('info', 'Finished refreshing');

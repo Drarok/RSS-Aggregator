@@ -1,26 +1,5 @@
 <?php
 
-define('EXT', '.php');
-define('APPPATH', realpath('.').'/');
-
-function log_msg() {
-	$args = func_get_args();
-	$msg = array_shift($args);
-
-	if ((bool) $args) {
-		$msg = vsprintf($msg, $args);
-	}
-
-	static $log_file;
-	if (! $log_file) {
-		$log_file = fopen('log.txt', 'a');
-	}
-
-	$msg = sprintf('[%s] %s', date('Y-m-d H:i:s'), $msg).PHP_EOL;
-
-	fwrite($log_file, $msg);
-}
-
 class Core {
 	protected static $levels = array(
 		'error' => 1,
@@ -29,8 +8,33 @@ class Core {
 		'debug' => 4,
 	);
 
+	protected static $config = array();
+
+	public static function config($key, $default = FALSE) {
+		// Break up the key passed in.
+		list($file, $key) = explode('.', $key, 2);
+
+		// If that config isn't loaded, attempt to.
+		if (! array_key_exists($file, self::$config)) {
+			$file_path = APPPATH.'config/'.$file.'.php';
+
+			// No such file? Emulate an empty one.
+			if (! file_exists($file_path)) {
+				self::$config[$file] = array();
+			} else {
+				require_once($file_path);
+				self::$config[$file] = isset($config)
+					? $config
+					: array();
+			}
+		}
+
+		return array_key_exists($key, self::$config[$file])
+			? self::$config[$file][$key]
+			: $default;
+	}
+
 	public static function log($level, $message) {
-		echo 'Core::log(', $level, ', ', $message, ")\n";
 		// Check it's a valid level.
 		if (! array_key_exists($level, self::$levels))
 			return;
