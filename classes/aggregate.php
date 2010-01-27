@@ -24,13 +24,26 @@ class Aggregate {
 	public function __get($key) {
 		if ($key === 'items') {
 			$items = array();
-			$query = $this->db->query(
-				'SELECT * FROM "entries" WHERE "parent_id" IS NULL ORDER BY "time" DESC'
+			$root_query = $this->db->query(
+				'SELECT "id", "name" FROM "entries" '
+				.'WHERE "parent_id" IS NULL '
+				.'ORDER BY "time" DESC'
+			);
+
+			$item_statement = $this->db->prepare(
+				'SELECT * FROM "entries" '
+				.'WHERE "parent_id" = :parent_id'
 			);
 
 			$result = array();
-			while ($row = $query->fetchArray(SQLITE3_ASSOC)) {
-				$result[] = $row;
+			while ($root_row = (object) $root_query->fetchArray(SQLITE3_ASSOC)) {
+				$result[$root_row->name] = array();
+				$item_statement->bindValue(':parent_id', $root_row->id, SQLITE3_INTEGER);
+				$item_result = $item_statement->execute();
+				while ($item_row = $item_result->fetchArray(SQLITE3_ASSOC)) {
+					$result[$root_row->name][] = $item_row;
+				}
+				unset($item_result);
 			}
 
 			return $result;
