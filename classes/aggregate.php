@@ -30,7 +30,8 @@ class Aggregate {
 				.'ORDER BY "time" DESC'
 			);
 
-			$item_statement = $this->db->prepare(
+			$item_statement = new SQLStatement(
+				$this->db,
 				'SELECT * FROM "entries" '
 				.'WHERE "parent_id" = :parent_id'
 			);
@@ -38,11 +39,17 @@ class Aggregate {
 			$result = array();
 			while ($root_row = (object) $root_query->fetchArray(SQLITE3_ASSOC)) {
 				$result[$root_row->name] = array();
-				$item_statement->bindValue(':parent_id', $root_row->id, SQLITE3_INTEGER);
+
+				// Get the sub items.
+				$item_statement->parent_id = (int) $root_row->id;
 				$item_result = $item_statement->execute();
+
 				while ($item_row = $item_result->fetchArray(SQLITE3_ASSOC)) {
 					$result[$root_row->name][] = $item_row;
 				}
+
+				// Free resources.
+				$item_result->finalize();
 				unset($item_result);
 			}
 
