@@ -71,10 +71,14 @@ class Core {
 			$message = vsprintf($message, $args);
 		}
 
+		$micro = microtime(TRUE);
+		$micro = substr(sprintf('%.4f', $micro - floor($micro)), 2);
+
 		// Build the mesage.
 		$message = sprintf(
-			'%s - [%s] %s',
+			'%s.%s - [%s] %s',
 			date('Y-m-d H:i:s'),
+			$micro,
 			$level,
 			$message
 		)."\n";
@@ -93,3 +97,18 @@ class Core {
 }
 
 spl_autoload_register('Core::autoload');
+
+if (! extension_loaded('sqlite3')) {
+	Core::log('warning', 'sqlite3 extension not loaded - attempting dynamic load');
+	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+		$result = dl('php_sqlite3.dll');
+	} else {
+		$result = dl('sqlite3.so');
+	}
+
+	if (! (bool) $result) {
+		throw new Exception('Cannot load sqlite3 extension');
+	} else {
+		Core::log('debug', 'sqlite3 loaded');
+	}
+}

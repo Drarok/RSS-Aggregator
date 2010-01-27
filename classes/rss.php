@@ -3,13 +3,26 @@
 class RSS {
 	protected $name;
 	protected $url;
+	protected $items;
 
 	public function __construct($name, $url) {
 		$this->name = $name;
 		$this->url = $url;
 	}
 
+	public function __get($key) {
+		if ($key === 'items') {
+			if (! (bool) $this->items)
+				$this->fetch();
+
+			return new ArrayIterator($this->items);
+		}
+	}
+
 	public function fetch() {
+		// Initialise.
+		$this->items = array();
+
 		// Grab the data.
 		$data = $this->get_rss_data();
 
@@ -17,10 +30,16 @@ class RSS {
 		Core::log('debug', 'Parsing %d bytes', strlen($data));
 		
 		// Parse the feed.
-		return simplexml_load_string($data);
+		$xml = simplexml_load_string($data);
+
+		foreach ($xml->entry as $entry) {
+			$this->items[] = $entry;
+		}
+
+		Core::log('debug', 'Parsed %d items', count($this->items));
 	}
 
-	protected get_rss_data() {
+	protected function get_rss_data() {
 		// Initialise vars.
 		$data = FALSE;
 		$cache_path = APPPATH.'cache/'.$this->name.'.xml';
@@ -28,7 +47,7 @@ class RSS {
 		// Should we use the cache?
 		if (Core::config('config.enable_cache')) {
 			// Is there a cached result for this feed?
-			if (file_exists($cache_path) {
+			if (file_exists($cache_path)) {
 				Core::log('debug', 'Fetching %s RSS data from cache', $this->name);
 				$data = file_get_contents($cache_path);
 			}
