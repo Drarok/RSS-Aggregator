@@ -13,11 +13,24 @@ class SQLResult {
 		} else {
 			$this->result = $this->db->query($sql);
 		}
+
+		if (! (bool) $this->result) {
+			$this->result = FALSE;
+			$msg = $this->db->lastErrorMsg();
+			if ($result === FALSE) {
+				throw new Exception('Query failed: '.$msg.'['.$sql.']');
+			} else {
+				throw new Exception('Statement failed: '.$msg.'['.$sql.']');
+			}
+		}
 	}
 
 	public function __destruct() {
-		$this->result->finalize();
-		unset($this->result);
+		if ((bool) $this->result) {
+			Core::log('debug', 'Destroying SQLResult');
+			$this->result->finalize();
+			unset($this->result);
+		}
 	}
 
 	public function reset() {
@@ -25,6 +38,11 @@ class SQLResult {
 	}
 
 	public function fetch() {
-		return (object) $this->result->fetchArray(SQLITE3_ASSOC);
+		$result = $this->result->fetchArray(SQLITE3_ASSOC);
+
+		if ($result === FALSE)
+			return FALSE;
+
+		return (object) $result;
 	}
 }

@@ -9,9 +9,6 @@ Core::log('debug', 'Request from %s to fetch %d feeds', arr::get($_SERVER, 'REMO
 
 $agg = new Aggregate();
 
-$xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
-$xml->addChild('id', Core::config('config.url'));
-$xml->addChild('title', Core::config('config.title'));
 
 foreach ($feeds as $id => $feed) {
 	// Get the data from the RSS feed.
@@ -25,8 +22,11 @@ foreach ($feeds as $id => $feed) {
 if (Core::config('config.debug_mode')) {
 	var_dump($agg->items);
 } else {
+	var_dump($agg->items);
+/*
 	header('Content-Type: application/atom+xml');
 	echo $aggregate->asXML();
+*/
 }
 
 Core::log('info', 'Finished refreshing');

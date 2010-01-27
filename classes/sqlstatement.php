@@ -20,6 +20,13 @@ class SQLStatement {
 	}
 
 	public function __set($key, $value) {
+		$types = array(
+			SQLITE3_NULL 		=> 'SQLITE3_NULL',
+			SQLITE3_INTEGER 	=> 'SQLITE3_INTEGER',
+			SQLITE3_FLOAT		=> 'SQLITE3_FLOAT',
+			SQLITE3_TEXT		=> 'SQLITE3_TEXT',
+		);
+
 		if (is_null($value)) {
 			$type = SQLITE3_NULL;
 		} elseif (is_int($value)) {
@@ -30,15 +37,25 @@ class SQLStatement {
 			$type = SQLITE3_TEXT;
 		}
 
+		Core::log('debug', 'Binding %s to %s as type %s', $key, $value, $types[$type]);
 		$this->statement->bindValue(':'.$key, $value, $type);
+		$this->params[$key] = $value;
 	}
 
 	public function clear() {
+		$this->params = array();
 		$this->statement->clear();
 	}
 
 	public function execute() {
-		$this->statement->reset();
-		return $this->statement->execute();
+		Core::log('debug', 'SQLStatement->execute(%s)', $this->sql);
+		foreach ($this->params as $key => $value) {
+			Core::log('debug', "\t".'%s => %s', $key, $value);
+		}
+
+		// Execute the statement.
+		$result = $this->statement->execute();
+
+		return new SQLResult($this->db, $this->sql, $result, $this->params);
 	}
 }
