@@ -30,7 +30,7 @@ class RSS {
 		Core::log('debug', 'Parsing %d bytes', strlen($data));
 		
 		// Parse the feed.
-		$xml = simplexml_load_string($data);
+		$xml = simplexml_load_string($data, 'AdvancedXMLElement');
 
 		foreach ($xml->entry as $entry) {
 			$this->items[] = $entry;

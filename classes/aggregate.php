@@ -29,20 +29,13 @@ class Aggregate {
 		unset($this->insert);
 	}
 
-	public function __get($key) {
-		if ($key === 'items') {
-			return $this->get_items();
-		}
-	}
-
-	protected function get_items() {
+	public function asXML() {
 		// Build up a new RSS feed.
-		$xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
+		$xml = new AdvancedXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
 		$xml->addChild('id', Core::config('config.url'));
 		$xml->addChild('title', Core::config('config.title'));
 
 		// Fetch each item from the array in order.
-
 		$roots_result = new SQLResult(
 			$this->db,
 			'SELECT * FROM "entry_order" '
@@ -51,9 +44,7 @@ class Aggregate {
 
 		while ($root_row = $roots_result->fetch()) {
 			$entry = $this->entries[(int) $root_row->key];
-			$xml->entry[] = $entry;
-
-//			$xml->addChild('entry', $this->entries[(int) $root_row->key]);
+			$xml->addElement($entry);
 		}
 
 		unset($roots_result);
