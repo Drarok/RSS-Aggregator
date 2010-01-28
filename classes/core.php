@@ -53,7 +53,7 @@ class Core {
 			: $default;
 	}
 
-	public function set_config($key, $value) {
+	public static function set_config($key, $value) {
 		list($file, $key) = explode('.', $key, 2);
 		self::$config[$file][$key] = $value;
 	}
@@ -105,15 +105,34 @@ spl_autoload_register('Core::autoload');
 
 if (! extension_loaded('sqlite3')) {
 	Core::log('warning', 'sqlite3 extension not loaded - attempting dynamic load');
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+	$is_win = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN');
+
+/*
+	if ($is_win) {
 		$result = dl('php_sqlite3.dll');
 	} else {
 		$result = dl('sqlite3.so');
 	}
+ */
+	$result = FALSE;
 
-	if (! (bool) $result) {
-		throw new Exception('Cannot load sqlite3 extension');
-	} else {
+	if ((bool) $result) {
 		Core::log('debug', 'sqlite3 loaded');
+		Core::set_config('config.sqlite_class', 'SQLite3');
+	} else {
+		// Try to fall back on SQLite2
+		Core::log('warning', 'sqlite3 extension not available - attempting sqlite2');
+		if ($is_win) {
+			$result = dl('php_sqlite.dll');
+		} else {
+			$result = dl('sqlite.so');
+		}
+		
+		if ((bool) $result) {
+			Core::log('debug', 'sqlite2 loaded');
+			Core::set_config('config.sqlite_class', 'SQLite2');
+		} else {
+			throw new Exception('Cannot load sqlite extension');
+		}
 	}
 }

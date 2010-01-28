@@ -9,7 +9,6 @@ Core::log('debug', 'Request from %s to fetch %d feeds', arr::get($_SERVER, 'REMO
 
 $agg = new Aggregate();
 
-
 foreach ($feeds as $id => $feed) {
 	// Get the data from the RSS feed.
 	$rss = new RSS($id, $feed);

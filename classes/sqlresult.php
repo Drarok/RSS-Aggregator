@@ -28,7 +28,8 @@ class SQLResult {
 	public function __destruct() {
 		if ((bool) $this->result) {
 			Core::log('debug', 'Destroying SQLResult');
-			$this->result->finalize();
+			if (method_exists($this->result, 'finalize'))
+				$this->result->finalize();
 			unset($this->result);
 		}
 	}
