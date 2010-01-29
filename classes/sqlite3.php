@@ -1,9 +1,10 @@
 <?php
 
 /**
- * This class is a compatibility wrapper.
+ * This class is a compatibility wrapper and will only
+ * get loaded if the sqlite3 extension is not loaded.
  */
-class SQLite2 {
+class SQLite3 {
 	protected $db;
 
 	public function __construct($path) {
@@ -15,7 +16,10 @@ class SQLite2 {
 	}
 
 	public function query($sql) {
-		return $this->db->query($sql);
+		return new SQLite3Result(
+			$this->db,
+			$sql
+		);
 	}
 
 	public function exec($sql) {
@@ -30,14 +34,40 @@ class SQLite2 {
 	}
 }
 
-class SQLite2Result {
+define('SQLITE3_ASSOC', SQLITE_ASSOC);
+define('SQLITE3_NUM', SQLITE_NUM);
+define('SQLITE3_BOTH', SQLITE_BOTH);
+
+class SQLite3Result {
+	protected $db;
+	protected $sql;
+	protected $result;
+
+	public function __construct(SQLiteDatabase $db, $sql) {
+		$this->db = $db;
+		$this->sql = $sql;
+	}
+
+	public function fetchArray($mode = SQLITE3_BOTH) {
+		if (! (bool) $this->result) {
+			$this->result = $this->db->query($sql, $mode);
+		}
+
+		return $this->result->fetch();
+	}
+
+	public function reset() {
+		if ((bool) $this->result) {
+			sqlite_rewind($this->result);
+		}
+	}
 }
 
 
 define('SQLITE3_NULL', 0);
 define('SQLITE3_INTEGER', 1);
 define('SQLITE3_FLOAT', 2);
-define('SQLITE3_TEXT', 3);
+define('SQLITE3_TEXT', 4);
 
 class SQLite2Statement {
 	protected $db;
@@ -68,6 +98,9 @@ class SQLite2Statement {
 			$sql = str_replace($key, $value, $sql);
 		}
 
-		return $this->db->query($sql);
+		return new SQLite2Result(
+			$this->db,
+			$sql
+		);
 	}
 }

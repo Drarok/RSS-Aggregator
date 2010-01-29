@@ -7,9 +7,7 @@ class Aggregate {
 	protected $entries = array();
 
 	public function __construct() {
-		$class = Core::config('config.sqlite_class');
-
-		$this->db = new $class(':memory:');
+		$this->db = new SQLite3(':memory:');
 		$this->db->exec(
 			'CREATE TABLE "entry_order" ('
 			.'"time" INTEGER, '

@@ -29,6 +29,62 @@ class Core {
 		}
 	}
 
+	protected static function load_sqlite3() {
+		if (extension_loaded('sqlite3')) {
+			return TRUE;
+		} else {
+			Core::log('warning', 'sqlite3 extension not loaded - attempting dynamic load');
+
+			if (self::is_win()) {
+				$result = @dl('php_sqlite3.dll');
+			} else {
+				$result = @dl('sqlite3.so');
+			}
+
+			if ((bool) $result) {
+				Core::log('debug', 'Loaded sqlite3 extension');
+			}
+
+			return $result;
+		}
+	}
+
+	protected static function load_sqlite2() {
+		if (extension_loaded('sqlite')) {
+			return TRUE;
+		} else {
+			Core::log('warning', 'sqlite2 extension not loaded - attempting dynamic load');
+
+			if (self::is_win()) {
+				$result = @dl('php_sqlite.dll');
+			} else {
+				$result = @dl('sqlite.so');
+			}
+
+			if ((bool) $result) {
+				Core::log('debug', 'Loaded sqlite2 extension');
+			}
+
+			return $result;
+		}
+	}
+
+	protected static function is_win() {
+		return (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN');
+	}
+
+	public static function bootstrap() {
+		if (self::load_sqlite3()) {
+			return;
+		}
+
+		if (self::load_sqlite2()) {
+			return;
+		}
+
+		throw new Exception('Unable to load SQLite extension');
+	}
+
 	public static function config($key, $default = FALSE) {
 		// Break up the key passed in.
 		list($file, $key) = explode('.', $key, 2);
@@ -103,36 +159,3 @@ class Core {
 
 spl_autoload_register('Core::autoload');
 
-if (! extension_loaded('sqlite3')) {
-	Core::log('warning', 'sqlite3 extension not loaded - attempting dynamic load');
-	$is_win = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN');
-
-/*
-	if ($is_win) {
-		$result = dl('php_sqlite3.dll');
-	} else {
-		$result = dl('sqlite3.so');
-	}
- */
-	$result = FALSE;
-
-	if ((bool) $result) {
-		Core::log('debug', 'sqlite3 loaded');
-		Core::set_config('config.sqlite_class', 'SQLite3');
-	} else {
-		// Try to fall back on SQLite2
-		Core::log('warning', 'sqlite3 extension not available - attempting sqlite2');
-		if ($is_win) {
-			$result = dl('php_sqlite.dll');
-		} else {
-			$result = dl('sqlite.so');
-		}
-		
-		if ((bool) $result) {
-			Core::log('debug', 'sqlite2 loaded');
-			Core::set_config('config.sqlite_class', 'SQLite2');
-		} else {
-			throw new Exception('Cannot load sqlite extension');
-		}
-	}
-}
