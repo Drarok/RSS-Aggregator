@@ -29,6 +29,20 @@ class Aggregate {
 		unset($this->insert);
 	}
 
+	protected function insert($time, $key) {
+		$this->insert->time = $time;
+		$this->insert->key = $key;
+		$this->insert->execute();
+	}
+
+	public function add_entry($entry) {
+		Core::log('debug', 'Adding root entry \'%s\'', $entry->title);
+
+		$this->insert(strtotime($entry->published), $this->next_key);
+		$this->entries[$this->next_key] = $entry;
+		++$this->next_key;
+	}
+
 	public function asXML() {
 		// Build up a new RSS feed.
 		$xml = new AdvancedXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
@@ -50,19 +64,5 @@ class Aggregate {
 		unset($roots_result);
 
 		return $xml->asXML();
-	}
-
-	protected function insert($time, $key) {
-		$this->insert->time = $time;
-		$this->insert->key = $key;
-		$this->insert->execute();
-	}
-
-	public function add_entry($entry) {
-		Core::log('debug', 'Adding root entry \'%s\'', $entry->title);
-
-		$this->insert(strtotime($entry->published), $this->next_key);
-		$this->entries[$this->next_key]  = $entry;
-		++$this->next_key;
 	}
 }
