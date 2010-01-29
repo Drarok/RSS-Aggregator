@@ -27,7 +27,7 @@ class SQLite3 {
 	}
 
 	public function prepare($sql) {
-		return new SQLite2Statement($this, $sql);
+		return new SQLite3Stmt($this->db, $sql);
 	}
 
 	public function lastErrorMsg() {
@@ -50,7 +50,7 @@ class SQLite3Result {
 
 	public function fetchArray($mode = SQLITE3_BOTH) {
 		if (! (bool) $this->result) {
-			$this->result = $this->db->query($sql, $mode);
+			$this->result = $this->db->query($this->sql, $mode);
 		}
 
 		return $this->result->fetch();
@@ -69,7 +69,7 @@ define('SQLITE3_INTEGER', 1);
 define('SQLITE3_FLOAT', 2);
 define('SQLITE3_TEXT', 4);
 
-class SQLite2Statement {
+class SQLite3Stmt {
 	protected $db;
 	protected $sql;
 	protected $params = array();
@@ -81,6 +81,9 @@ class SQLite2Statement {
 
 	public function bindValue($key, $value, $type) {
 		$this->params[$key] = array($value, $type);
+	}
+
+	public function close() {
 	}
 
 	/**
@@ -98,7 +101,7 @@ class SQLite2Statement {
 			$sql = str_replace($key, $value, $sql);
 		}
 
-		return new SQLite2Result(
+		return new SQLite3Result(
 			$this->db,
 			$sql
 		);

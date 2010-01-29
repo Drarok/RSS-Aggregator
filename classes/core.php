@@ -74,9 +74,11 @@ class Core {
 	}
 
 	public static function bootstrap() {
+		/*
 		if (self::load_sqlite3()) {
 			return;
 		}
+		 */
 
 		if (self::load_sqlite2()) {
 			return;
@@ -158,4 +160,4 @@ class Core {
 }
 
 spl_autoload_register('Core::autoload');
-
+Core::bootstrap();
