@@ -19,15 +19,10 @@ foreach ($feeds as $id => $feed) {
 }
 
 if (Core::config('config.debug_mode')) {
-	$agg->asXML();
-//	var_dump($agg->asXML());
-} else {
 	echo $agg->asXML();
-//	var_dump($agg->asXML());
-/*
+} else {
 	header('Content-Type: application/atom+xml');
-	echo $aggregate->asXML();
-*/
+	echo $agg->asXML();
 }
 
 Core::log('info', 'Finished refreshing');
