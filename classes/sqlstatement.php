@@ -6,7 +6,7 @@ class SQLStatement {
 	protected $statement;
 	protected $params = array();
 
-	public function __construct($db, $sql) {
+	public function __construct(SQLite3 $db, $sql) {
 		$this->db = $db;
 		$this->sql = $sql;
 		$this->statement = $this->db->prepare($this->sql);
@@ -54,7 +54,7 @@ class SQLStatement {
 		}
 
 		// Execute the statement.
-		$result = $this->statement->execute();
+		return $result = $this->statement->execute();
 
 		return new SQLResult($this->db, $this->sql, $result, $this->params);
 	}

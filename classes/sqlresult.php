@@ -4,7 +4,7 @@ class SQLResult {
 	protected $db;
 	protected $result;
 
-	public function __construct($db, $sql, $result = FALSE) {
+	public function __construct(SQLite3 $db, $sql, $result = FALSE) {
 		$this->db = $db;
 		$this->sql = $sql;
 

@@ -27,7 +27,7 @@ class SQLite3 {
 	}
 
 	public function prepare($sql) {
-		return new SQLite3Stmt($this->db, $sql);
+		return new SQLite3Stmt($this, $sql);
 	}
 
 	public function lastErrorMsg() {
@@ -42,16 +42,18 @@ class SQLite3Result {
 	protected $db;
 	protected $sql;
 	protected $result;
+	protected $mode;
 
 	public function __construct(SQLiteDatabase $db, $sql) {
 		$this->db = $db;
 		$this->sql = $sql;
+		$this->mode = SQLITE3_ASSOC;
+		$this->result = $this->db->query($this->sql, $this->mode);
 	}
 
 	public function fetchArray($mode = SQLITE3_BOTH) {
-		if (! (bool) $this->result) {
-			$this->result = $this->db->query($this->sql, $mode);
-		}
+		if ($mode !== $this->mode)
+			throw new Exception('Invalid use of SQLite3Result::fetchArray()');
 
 		return $this->result->fetch();
 	}
@@ -74,7 +76,7 @@ class SQLite3Stmt {
 	protected $sql;
 	protected $params = array();
 
-	public function __construct($db, $sql) {
+	public function __construct(SQLite3 $db, $sql) {
 		$this->db = $db;
 		$this->sql = $sql;
 	}
@@ -90,6 +92,8 @@ class SQLite3Stmt {
 	 * Build SQL and return a result.
 	 */
 	public function execute() {
+		Core::log('debug', 'SQLite3Stmt::execute()');
+
 		$sql = $this->sql;
 		foreach ($this->params as $key => $tuple) {
 			list($value, $type) = $tuple;
@@ -101,9 +105,8 @@ class SQLite3Stmt {
 			$sql = str_replace($key, $value, $sql);
 		}
 
-		return new SQLite3Result(
-			$this->db,
-			$sql
-		);
+		Core::log('debug', 'SQLite3Stmt::$sql = %s', $sql);
+
+		return $this->db->query($sql);
 	}
 }
