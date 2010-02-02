@@ -74,11 +74,16 @@ class Core {
 	}
 
 	public static function bootstrap() {
-		/*
+		/**/
 		if (self::load_sqlite3()) {
 			return;
 		}
-		 */
+		/**/
+		
+		// Check the default timezone, if none set we may get errors.
+		if ($zone = @date_default_timezone_get() == 'UTC') {
+			date_default_timezone_set('Europe/London');
+		}
 
 		if (self::load_sqlite2()) {
 			return;
