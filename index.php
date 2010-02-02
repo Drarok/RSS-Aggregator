@@ -19,7 +19,7 @@ foreach ($feeds as $id => $feed) {
 }
 
 if (Core::config('config.debug_mode')) {
-	echo $agg->asXML();
+	$agg->asXML();
 } else {
 	header('Content-Type: application/atom+xml');
 	echo $agg->asXML();
