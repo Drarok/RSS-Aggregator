@@ -5,6 +5,7 @@ require_once('classes/core.php');
 
 // Start the profiler.
 $profiler = new Profiler;
+Core::log('info', 'Started refresh');
 
 $feeds = Core::config('config.feeds', array());
 
