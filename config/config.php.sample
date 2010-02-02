@@ -1,14 +1,33 @@
 <?php
 
 $config = array(
+	// Debug mode outputs the log messages instead of the feed.
 	'debug_mode' => FALSE,
+
+	// What level of message to record.
+	// 0 = disabled
+	// 1 = errors
+	// 2 = warnings
+	// 3 = information
+	// 4 = debug
 	'log_level' => 1,
+
+	// Cache setup.
 	'cache_enabled' => TRUE,
 	'cache_expiry' => 1200,
+
+	// Specify a SQLite extension version, or FALSE for auto-select.
+	'sqlite_version' => FALSE,
+
+	// This needs to be the URL that you'll use to access the script on the web.
 	'url' => 'http://your.server.tld/dir/index.php',
+
+	// Feed title.
 	'title' => 'Saved Searches',
+
+	// Specify your feeds here.
 	'feeds' => array(
-		'name' => 'feed url',
-		'another name' => 'another feed',
+		'A Feed' => 'http://feed.url/',
+		'Another Feed' => 'http://another.feed/',
 	),
 );

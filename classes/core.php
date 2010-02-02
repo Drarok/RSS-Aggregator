@@ -85,12 +85,21 @@ class Core {
 			date_default_timezone_set('Europe/London');
 		}
 
-		if (self::load_sqlite3()) {
-			return;
-		}
+		// Allow configuration to specify which sqlite extension to use.
+		$version = Core::config('config.sqlite_version');
+
+		if ($version == 2) {
+			if (self::load_sqlite2())
+				return;
+		} elseif ($version == 3) {
+			if (self::load_sqlite3())
+				return;
+		} else {
+			if (self::load_sqlite3())
+				return;
 		
-		if (self::load_sqlite2()) {
-			return;
+			if (self::load_sqlite2())
+				return;
 		}
 
 		throw new Exception('Unable to load SQLite extension');
