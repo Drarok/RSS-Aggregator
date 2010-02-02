@@ -1,0 +1,3 @@
+Implement some unit tests so that SQLite2 and SQLite3 operation can be more easily tested.
+
+At present I'm running it on two separate machines to test both!
