@@ -145,6 +145,7 @@ class Core {
 			$message = vsprintf($message, $args);
 		}
 
+		// Grab the microseconds, too.
 		$micro = microtime(TRUE);
 		$micro = substr(sprintf('%.4f', $micro - floor($micro)), 2);
 
@@ -164,7 +165,8 @@ class Core {
 		// Finally write it to the log.
 		static $log_file;
 		if (! (bool) $log_file) {
-			$log_file = fopen('log.txt', 'a');
+			$log_path = sprintf('%slogs/%s.txt', APPPATH, date('Y-m-d'));
+			$log_file = fopen($log_path, 'a');
 		}
 		fwrite($log_file, $message);
 	}
