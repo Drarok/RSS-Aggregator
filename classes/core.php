@@ -85,11 +85,9 @@ class Core {
 			date_default_timezone_set('Europe/London');
 		}
 
-		/**/
 		if (self::load_sqlite3()) {
 			return;
 		}
-		/**/
 		
 		if (self::load_sqlite2()) {
 			return;
