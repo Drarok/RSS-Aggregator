@@ -45,9 +45,12 @@ class Aggregate {
 
 	public function asXML() {
 		// Build up a new RSS feed.
-		$xml = new AdvancedXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed />');
+		$xml = new AdvancedXMLElement('<?xml version="1.0" encoding="utf-8" ?><feed xmlns="http://www.w3.org/2005/Atom" />');
 		$xml->addChild('id', Core::config('config.url'));
 		$xml->addChild('title', Core::config('config.title'));
+		$link = $xml->addChild('link');
+		$link->addAttribute('href', Core::config('config.url'));
+		$link->addAttribute('rel', 'self');
 
 		// Fetch each item from the array in order.
 		$roots_result = new SQLResult(
@@ -56,8 +59,18 @@ class Aggregate {
 			.'ORDER BY "time" DESC'
 		);
 
+		// Set up a variable to keep track of the 'updated' field.
+		$updated = FALSE;
+
 		while ($root_row = $roots_result->fetch()) {
 			$entry = $this->entries[(int) $root_row->key];
+
+			// If our feed doesn't have an updated item yet, add one.
+			if (! $updated) {
+				$updated = (bool) $xml->addChild('updated', (string) $entry->published);
+			}
+			
+			// Add the entry to the feed.
 			$xml->addElement($entry);
 		}
 
