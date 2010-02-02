@@ -31,6 +31,7 @@ class Core {
 
 	protected static function load_sqlite3() {
 		if (extension_loaded('sqlite3')) {
+			Core::log('debug', 'sqlite3 extension already loaded - skipped');
 			return TRUE;
 		} else {
 			Core::log('warning', 'sqlite3 extension not loaded - attempting dynamic load');
@@ -51,6 +52,7 @@ class Core {
 
 	protected static function load_sqlite2() {
 		if (extension_loaded('sqlite')) {
+			Core::log('debug', 'sqlite2 extension already loaded - skipped');
 			return TRUE;
 		} else {
 			Core::log('warning', 'sqlite2 extension not loaded - attempting dynamic load');
