@@ -1,0 +1,3 @@
+[submodule "classes/ansi-colors"]
+	path = classes/ansi-colors
+	url = git://git.drarok.com/ansi-colors/ansi-colors.git
