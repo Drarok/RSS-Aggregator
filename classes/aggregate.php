@@ -62,7 +62,14 @@ class Aggregate {
 		}
 
 		unset($roots_result);
-
-		return $xml->asXML();
+		
+		// Strip any blank lines.
+		$result = '';
+		foreach (explode("\n", $xml->asXML()) as $line) {
+			if ((bool) $line = trim($line))
+				$result .= $line;
+		}
+		
+		return $result;
 	}
 }
