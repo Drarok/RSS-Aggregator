@@ -29,8 +29,7 @@ if (Core::config('config.debug_mode')) {
 	$agg->asXML();
 } else {
 	header('Content-Type: application/atom+xml');
-	$output = $agg->asXML();
-	echo str_replace('><', ">\n<", $output);;
+	echo $agg->asXML();
 }
 
 $profiler->add_event('Finished refreshing');
