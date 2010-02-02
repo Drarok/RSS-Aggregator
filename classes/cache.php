@@ -15,7 +15,7 @@ class Cache {
 		$this->path = APPPATH.'cache/'.$name;
 	}
 
-	public function valid() {
+	protected function valid() {
 		// Should we even use the cache?
 		if (! self::$enabled)
 			return FALSE;
@@ -64,7 +64,7 @@ class Cache {
 		if (! self::$enabled)
 			return;
 
-		file_put_contents($this->path, $data);
+		@file_put_contents($this->path, $data);
 	}
 }
 
