@@ -44,6 +44,8 @@ class Core {
 
 			if ((bool) $result) {
 				Core::log('debug', 'Loaded sqlite3 extension');
+			} else {
+				Core::log('debug', 'Failed to load sqlite3 extension');
 			}
 
 			return $result;
@@ -65,6 +67,8 @@ class Core {
 
 			if ((bool) $result) {
 				Core::log('debug', 'Loaded sqlite2 extension');
+			} else {
+				Core::log('debug', 'Failed to load sqlite2 extension');
 			}
 
 			return $result;
