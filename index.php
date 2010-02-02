@@ -17,7 +17,7 @@ foreach ($feeds as $id => $feed) {
 	// Get the data from the RSS feed.
 	$rss = new RSS($id, $feed);
 
-	foreach ($rss->items as $entry) {
+	foreach ($rss->get_items() as $entry) {
 		$agg->add_entry($entry);
 	}
 

@@ -3,25 +3,15 @@
 class RSS {
 	protected $name;
 	protected $url;
-	protected $items;
 
 	public function __construct($name, $url) {
 		$this->name = $name;
 		$this->url = $url;
 	}
 
-	public function __get($key) {
-		if ($key === 'items') {
-			if (! (bool) $this->items)
-				$this->fetch();
-
-			return new ArrayIterator($this->items);
-		}
-	}
-
-	public function fetch() {
+	public function get_items() {
 		// Initialise.
-		$this->items = array();
+		$items = array();
 
 		// Grab the data.
 		$data = $this->get_rss_data();
@@ -33,10 +23,12 @@ class RSS {
 		$xml = simplexml_load_string($data, 'AdvancedXMLElement');
 
 		foreach ($xml->entry as $entry) {
-			$this->items[] = $entry;
+			$items[] = $entry;
 		}
 
-		Core::log('debug', 'Parsed %d items', count($this->items));
+		Core::log('debug', 'Parsed %d items', count($items));
+
+		return $items;
 	}
 
 	protected function get_rss_data() {
