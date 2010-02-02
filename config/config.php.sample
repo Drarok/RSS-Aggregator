@@ -3,7 +3,8 @@
 $config = array(
 	'debug_mode' => FALSE,
 	'log_level' => 1,
-	'enable_cache' => FALSE,
+	'cache_enabled' => TRUE,
+	'cache_expiry' => 1200,
 	'url' => 'http://your.server.tld/dir/index.php',
 	'title' => 'Saved Searches',
 	'feeds' => array(
