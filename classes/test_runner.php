@@ -48,6 +48,8 @@ class Test_Runner {
 		foreach ($this->tests as $class_name => $class_path) {
 			$this->run_test($class_name, $class_path);
 		}
+
+		var_dump($this->assertions);
 	}
 
 	/**
@@ -55,6 +57,8 @@ class Test_Runner {
 	 */
 	protected function run_test($class_name, $class_path) {
 		require_once($class_path);
+
+		Core::log('debug', 'Instantiating test \'%s\'', $class_name);
 
 		try {
 			$test = new $class_name();
@@ -69,17 +73,42 @@ class Test_Runner {
 				if (substr($method->getName(), -5) != '_test')
 					continue;
 
+				// Log the method.
+				Core::log(
+					'debug',
+					'Running %s->%s',
+					ansi::csprintf('blue', FALSE, $class_name),
+					ansi::csprintf('cyan', FALSE, $method->getName())
+				);
+
 				// Run the test method.
 				try {
 					$method->invoke($test);
 				} catch (Exception $e) {
 				}
+
+				if ((bool) $passed = count($test->assertions['pass'])) {
+					$message = ansi::csprintf('green', FALSE, 'Passed %d assertions', $passed);
+					Core::log('debug', $message);
+				}
+
+				if ((bool) $failed = count($test->assertions['fail'])) {
+					$message = ansi::csprintf('red', FALSE, 'Failed %d assertions', $failed);
+					Core::log('debug', $message);
+				}
+
+				if ($passed == 0 AND $failed == 0) {
+					$message = ansi::csprintf('red', FALSE, 'No assertions were checked');
+					Core::log('debug', $message);
+				}
 			}
 
-			var_dump($test->assertions);
+			// Get the assertions from the test case and remember them.
+			$this->assertions = array_merge_recursive($this->assertions, $test->assertions);
 		} catch (Exception $e) {
 			echo $e->getMessage(), "\n";
 		}
+
 		unset($test);
 	}
 }

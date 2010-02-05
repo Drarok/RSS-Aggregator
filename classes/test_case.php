@@ -6,10 +6,6 @@ abstract class Test_Case {
 		'fail' => array(),
 	);
 
-	public function __construct() {
-		Core::log('debug', 'Instantiated test \'%s\'', get_class($this));
-	}
-
 	public function __get($key) {
 		if ($key === 'assertions') {
 			return $this->assertions;
