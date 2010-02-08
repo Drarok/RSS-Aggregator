@@ -86,9 +86,6 @@ class Core {
 			date_default_timezone_set('Europe/London');
 		}
 
-		// Immediately load the ansi colors class, else logging fails inside autoload.
-		require_once(APPPATH.'classes/ansi-colors/ansi_color'.EXT);
-
 		// Allow configuration to specify which sqlite extension to use.
 		$version = Core::config('config.sqlite_version');
 
@@ -207,5 +204,13 @@ class Core {
 	}
 }
 
+// Immediately load the ansi colors class, else logging fails inside autoload.
+require_once(APPPATH.'classes/ansi-colors/ansi_color'.EXT);
+
+// Register for autoload.
 spl_autoload_register('Core::autoload');
-Core::bootstrap();
+
+// Bootstrap unless told not to.
+if (! defined('NO_BOOTSTRAP')) {
+	Core::bootstrap();
+}
