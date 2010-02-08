@@ -21,7 +21,9 @@ abstract class Test_Case {
 			$color = 'green';
 		}
 
-		Core::log('debug', 'assert_equal(%s, %s) = %s [%s, %s]', $expected, $actual, $message, $key, $color);
+		if ((bool) $message) {
+			$message .= '. ';
+		}
 
 		$message .= sprintf(
 			'Expected: %s. Actual: %s.',

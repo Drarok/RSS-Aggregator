@@ -96,6 +96,9 @@ class Test_Runner {
 				if ((bool) $failed = count($test->assertions['fail'])) {
 					$message = ansi::csprintf('red', FALSE, 'Failed %d assertions', $failed);
 					Core::log('info', $message);
+					foreach ($test->assertions['fail'] as $fail) {
+						Core::log('warning', var_export($fail, TRUE));
+					}
 				}
 
 				if ($passed == 0 AND $failed == 0) {
