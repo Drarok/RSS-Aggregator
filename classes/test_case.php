@@ -33,4 +33,10 @@ abstract class Test_Case {
 
 		$this->assertions[$key][] = ansi::csprintf($color, FALSE, $message);
 	}
+
+	public function setup() {
+	}
+
+	public function teardown() {
+	}
 }
