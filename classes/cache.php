@@ -34,18 +34,9 @@ class Cache {
 		$expiry = Core::config('config.cache_expiry', 1200);
 		$earliest = $now - $expiry;
 
-		// Log detailed information in debug mode.
-		Core::log(
-			'debug',
-			'Cache file time is %s, earliest valid is %s',
-			date('Y-m-d H:i:s', $mod_time),
-			date('Y-m-d H:i:s', $earliest)
-		);
-
 		// Compare the values.
 		if ($mod_time < $earliest) {
-			Core::log('info', 'Expiring cache file %s', $this->path);
-			unlink($this->path);
+			$this->invalidate();
 			return FALSE;
 		}
 
@@ -65,6 +56,11 @@ class Cache {
 			return;
 
 		@file_put_contents($this->path, $data);
+	}
+
+	public function invalidate() {
+		Core::log('debug', 'Expiring cache file %s', $this->path);
+		file_exists($this->path) AND unlink($this->path);
 	}
 }
 

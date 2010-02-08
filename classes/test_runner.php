@@ -146,14 +146,6 @@ class Test_Runner {
 
 				foreach ($test->assertions as $key => $assertions) {
 					foreach ($assertions as $assertion) {
-						Core::log(
-							'debug',
-							'Assigning into %s for %s->%s = %s',
-							$key,
-							$class_name,
-							$method->getName(),
-							$assertion
-						);
 						$this->assertions[$key][$class_name][$method->getName()][] = $assertion;
 					}
 				}

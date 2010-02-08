@@ -3,10 +3,12 @@
 class RSS {
 	protected $name;
 	protected $url;
+	protected $use_cache;
 
-	public function __construct($name, $url) {
+	public function __construct($name, $url, $use_cache = TRUE) {
 		$this->name = $name;
 		$this->url = $url;
+		$this->use_cache = $use_cache;
 	}
 
 	public function get_items() {
@@ -32,10 +34,18 @@ class RSS {
 	}
 
 	protected function get_rss_data() {
-		// Use the cache if available.
+		// Always instantiate the cache.
 		$cache = new Cache($this->name.'.xml');
-		$data = $cache->read();
 
+		// Initialise the data.
+		$data = FALSE;
+
+		// Use the cache if allowed.
+		if ($this->use_cache) {
+			$data = $cache->read();
+		}
+
+		// No data? Fetch it.
 		if (! (bool) $data) {
 			Core::log('debug', 'Fetching %s RSS data from %s', $this->name, $this->url);
 			$cache->write($data = file_get_contents($this->url));
