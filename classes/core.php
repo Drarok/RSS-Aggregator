@@ -21,7 +21,13 @@ class Core {
 	public static function autoload($class_name) {
 		Core::log('debug', 'Autoloading %s', $class_name);
 
-		$class_path = APPPATH.'classes/'.strtolower($class_name).EXT;
+		// Override for the ansi colors class.
+		if ($class_name == 'ansi') {
+			$class_path = APPPATH.'classes/ansi-colors/ansi_color'.EXT;
+		} else {
+			$class_path = APPPATH.'classes/'.strtolower($class_name).EXT;
+		}
+
 		if (file_exists($class_path)) {
 			include_once($class_path);
 		} else {
@@ -157,7 +163,7 @@ class Core {
 		$micro = substr(sprintf('%.4f', $micro - floor($micro)), 2);
 
 		// Build the mesage.
-		$message = sprintf(
+		$log_message = sprintf(
 			'%s.%s - [%s] %s',
 			date('Y-m-d H:i:s'),
 			$micro,
@@ -165,9 +171,33 @@ class Core {
 			$message
 		)."\n";
 
-		// Output if we're debugging.
-		if (Core::config('config.debug_mode'))
-			echo $message;
+		// Enable colored output for debug mode.
+		if (Core::config('config.debug_mode')) {
+			switch ($level) {
+				case 'error':
+					$color = 'red';
+					break;
+				case 'warning':
+					$color = 'magenta';
+					break;
+				case 'info':
+					$color = 'cyan';
+					break;
+				case 'debug':
+					$color = 'yellow';
+					break;
+			}
+
+			$color_level = ansi::csprintf($color, FALSE, $level);
+
+			echo sprintf(
+					'%s.%s - [%s] %s',
+					date('Y-m-d H:i:s'),
+					$micro,
+					$color_level,
+					$message
+				), "\n";
+		}
 
 		// Finally write it to the log.
 		static $log_file;
@@ -175,7 +205,7 @@ class Core {
 			$log_path = sprintf('%slogs/%s.txt', APPPATH, date('Y-m-d'));
 			$log_file = fopen($log_path, 'a');
 		}
-		fwrite($log_file, $message);
+		fwrite($log_file, $log_message);
 	}
 }
 

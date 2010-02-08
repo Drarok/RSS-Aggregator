@@ -3,9 +3,6 @@
 // Bootstrap the autoloader etc.
 require_once('classes/core.php');
 
-// Include this manually because it's a git submodule.
-require_once('classes/ansi-colors/ansi_color.php');
-
 // Force at least info-level logging.
 if (Core::config('config.log_level') < 3)
 	Core::set_config('config.log_level', 3);
