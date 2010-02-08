@@ -21,17 +21,12 @@ class Core {
 	public static function autoload($class_name) {
 		Core::log('debug', 'Autoloading %s', $class_name);
 
-		// Override for the ansi colors class.
-		if ($class_name == 'ansi') {
-			$class_path = APPPATH.'classes/ansi-colors/ansi_color'.EXT;
-		} else {
-			$class_path = APPPATH.'classes/'.strtolower($class_name).EXT;
-		}
+		$class_path = APPPATH.'classes/'.strtolower($class_name).EXT;
 
 		if (file_exists($class_path)) {
 			include_once($class_path);
 		} else {
-			echo 'Failed to load ', $class_name, "\n";
+			Core::log('error', 'Failed to load %s', $class_name);
 		}
 	}
 
@@ -90,6 +85,9 @@ class Core {
 		if ($zone = @date_default_timezone_get() == 'UTC') {
 			date_default_timezone_set('Europe/London');
 		}
+
+		// Immediately load the ansi colors class, else logging fails inside autoload.
+		require_once(APPPATH.'classes/ansi-colors/ansi_color'.EXT);
 
 		// Allow configuration to specify which sqlite extension to use.
 		$version = Core::config('config.sqlite_version');
