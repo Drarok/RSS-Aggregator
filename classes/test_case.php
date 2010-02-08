@@ -12,8 +12,8 @@ abstract class Test_Case {
 		}
 	}
 
-	protected function assert_equal($a, $b, $message = FALSE) {
-		if ($a !== $b) {
+	protected function assert_equal($expected, $actual, $message = FALSE) {
+		if ($expected !== $actual) {
 			$key = 'fail';
 			$color = 'red';
 		} else {
