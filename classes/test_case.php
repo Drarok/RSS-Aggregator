@@ -21,7 +21,13 @@ abstract class Test_Case {
 			$color = 'green';
 		}
 
-		Core::log('debug', 'assert_equal(%s, %s) = %s [%s, %s]', $a, $b, $message, $key, $color);
+		Core::log('debug', 'assert_equal(%s, %s) = %s [%s, %s]', $expected, $actual, $message, $key, $color);
+
+		$message .= sprintf(
+			'Expected: %s. Actual: %s.',
+			var_export($expected, TRUE),
+			var_export($actual, TRUE)
+		);
 
 		$this->assertions[$key][] = ansi::csprintf($color, FALSE, $message);
 	}
