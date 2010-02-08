@@ -2,10 +2,17 @@
 
 class Test_Runner {
 	protected $tests = array();
+
+	protected $pass_count = 0;
+	protected $fail_count = 0;
+
 	protected $assertions = array(
 		'pass' => array(),
 		'fail' => array(),
 	);
+
+	protected $test_count = 0;
+	protected $exception_count = 0;
 
 	public function __construct() {
 		$this->load();
@@ -49,8 +56,26 @@ class Test_Runner {
 			$this->run_test($class_name, $class_path);
 		}
 
-		// TODO: Output overall info.
-		// var_dump($this->assertions);
+		// Output any information that might be handy.
+		Core::log(
+			'info',
+			'Ran %d tests, %d assertions passed, %d failed, %d exceptions.',
+			$this->test_count,
+			$this->pass_count,
+			$this->fail_count,
+			$this->exception_count
+		);
+
+		if ((bool) $this->fail_count) {
+			Core::log('warning', '%d assertions failed.', $this->fail_count);
+			foreach ($this->assertions['fail'] as $class => $methods) {
+				foreach ($methods as $method => $assertions) {
+					foreach ($assertions as $message) {
+						Core::log('warning', '%s->%s = %s', $class, $method, $message);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -59,12 +84,10 @@ class Test_Runner {
 	protected function run_test($class_name, $class_path) {
 		require_once($class_path);
 
-		Core::log('info', 'Instantiating test \'%s\'', $class_name);
+		Core::log('info', 'Running tests from \'%s\'', $class_name);
 
 		try {
-			$test = new $class_name();
-
-			$r = new ReflectionObject($test);
+			$r = new ReflectionClass($class_name);
 			foreach ($r->getMethods() as $method) {
 				// Only attempt to run public methods.
 				if (! $method->isPublic())
@@ -82,10 +105,21 @@ class Test_Runner {
 					ansi::csprintf('cyan', FALSE, $method->getName())
 				);
 
+				// We're about to run, increment our counter.
+				$this->test_count++;
+
+				// Instantiate the test.
+				$test = new $class_name();
+
 				// Run the test method.
 				try {
+					// Setup first.
+					$test->setup();
 					$method->invoke($test);
+					$test->teardown();
 				} catch (Exception $e) {
+					$this->exception_count++;
+					Core::log('error', '%s', $e);
 				}
 
 				if ((bool) $passed = count($test->assertions['pass'])) {
@@ -103,16 +137,32 @@ class Test_Runner {
 
 				if ($passed == 0 AND $failed == 0) {
 					$message = ansi::csprintf('red', FALSE, 'No assertions were checked');
-					Core::log('info', $message);
+					Core::log('warning', $message);
 				}
+
+				// Get the assertions from the test case and remember them.
+				$this->pass_count += $passed;
+				$this->fail_count += $failed;
+
+				foreach ($test->assertions as $key => $assertions) {
+					foreach ($assertions as $assertion) {
+						Core::log(
+							'debug',
+							'Assigning into %s for %s->%s = %s',
+							$key,
+							$class_name,
+							$method->getName(),
+							$assertion
+						);
+						$this->assertions[$key][$class_name][$method->getName()][] = $assertion;
+					}
+				}
+
+				// Unset the test before next iteration.
+				unset($test);
 			}
-
-			// Get the assertions from the test case and remember them.
-			$this->assertions = array_merge_recursive($this->assertions, $test->assertions);
 		} catch (Exception $e) {
-			Core::log('error', $e->getMessage());
+			Core::log('error', 'Caught exception: %s', $e);
 		}
-
-		unset($test);
 	}
 }
