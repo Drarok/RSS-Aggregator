@@ -5,7 +5,9 @@ class AdvancedXMLElement extends SimpleXMLElement {
 		if ($source->getName() == 'content' AND $source['type'] == 'xhtml')
 			return;
 
-		$new_child = $this->addChild($source->getName(), $source[0]);
+		$name = htmlspecialchars($source->getName());
+		$value = htmlspecialchars($source[0]);
+		$new_child = $this->addChild($name, $value);
 
 		foreach ($source->attributes() as $attrname => $attrval) {
 			$new_child[$attrname] = (string) $attrval;
